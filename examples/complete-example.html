@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Video Tracker SDK - Complete Example</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .video-container {
+        margin-bottom: 30px;
+      }
+      video {
+        width: 100%;
+        max-width: 800px;
+        height: auto;
+      }
+      .analytics-panel {
+        background: #f5f5f5;
+        padding: 20px;
+        border-radius: 8px;
+        margin: 20px 0;
+      }
+      .events-log {
+        background: #1e1e1e;
+        color: #00ff00;
+        padding: 15px;
+        border-radius: 8px;
+        height: 300px;
+        overflow-y: auto;
+        font-family: 'Courier New', monospace;
+        font-size: 12px;
+      }
+      .controls {
+        margin: 15px 0;
+      }
+      button {
+        margin: 5px;
+        padding: 10px 15px;
+        background: #007cba;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      button:hover {
+        background: #005a87;
+      }
+      .analytics-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-top: 15px;
+      }
+      .metric {
+        background: white;
+        padding: 15px;
+        border-radius: 6px;
+        text-align: center;
+        border: 1px solid #ddd;
+      }
+      .metric-value {
+        font-size: 24px;
+        font-weight: bold;
+        color: #007cba;
+      }
+      .metric-label {
+        font-size: 14px;
+        color: #666;
+        margin-top: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Video Tracker SDK - Complete Example</h1>
+
+    <div class="video-container">
+      <video id="demo-video" controls>
+        <source
+          src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+          type="video/mp4"
+        />
+        <source
+          src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mov"
+          type="video/quicktime"
+        />
+        Your browser does not support the video tag.
+      </video>
+    </div>
+
+    <div class="controls">
+      <button onclick="manualPlay()">Manual Play Event</button>
+      <button onclick="manualPause()">Manual Pause Event</button>
+      <button onclick="clearLog()">Clear Log</button>
+      <button onclick="toggleDebug()">Toggle Debug</button>
+      <button onclick="exportData()">Export Analytics</button>
+    </div>
+
+    <div class="analytics-panel">
+      <h3>Real-time Analytics</h3>
+      <div class="analytics-grid" id="analytics-grid">
+        <div class="metric">
+          <div class="metric-value" id="play-time">0s</div>
+          <div class="metric-label">Play Time</div>
+        </div>
+        <div class="metric">
+          <div class="metric-value" id="seek-count">0</div>
+          <div class="metric-label">Seeks</div>
+        </div>
+        <div class="metric">
+          <div class="metric-value" id="buffer-count">0</div>
+          <div class="metric-label">Buffer Events</div>
+        </div>
+        <div class="metric">
+          <div class="metric-value" id="completion-rate">0%</div>
+          <div class="metric-label">Completion</div>
+        </div>
+        <div class="metric">
+          <div class="metric-value" id="engagement-score">0</div>
+          <div class="metric-label">Engagement Score</div>
+        </div>
+        <div class="metric">
+          <div class="metric-value" id="quality-changes">0</div>
+          <div class="metric-label">Quality Changes</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="analytics-panel">
+      <h3>Events Log</h3>
+      <div class="events-log" id="events-log"></div>
+    </div>
+
+    <!-- Include the built SDK -->
+    <script src="../dist/index.umd.js"></script>
+    <script>
+      // Initialize the video tracker
+      const video = document.getElementById('demo-video');
+      let tracker;
+      let analytics;
+      let debugMode = true;
+
+      // Simple analytics class for demo
+      class SimpleAnalytics {
+        constructor() {
+          this.events = [];
+          this.playStartTime = null;
+          this.totalPlayTime = 0;
+        }
+
+        addEvent(event) {
+          this.events.push(event);
+          this.updateMetrics(event);
+        }
+
+        updateMetrics(event) {
+          if (event.type === 'play') {
+            this.playStartTime = Date.now();
+          } else if (event.type === 'pause' && this.playStartTime) {
+            this.totalPlayTime += Date.now() - this.playStartTime;
+            this.playStartTime = null;
+          }
+
+          this.refreshUI();
+        }
+
+        refreshUI() {
+          const seekEvents = this.events.filter((e) => e.type === 'seek');
+          const bufferEvents = this.events.filter(
+            (e) => e.type === 'bufferstart'
+          );
+          const qualityEvents = this.events.filter(
+            (e) => e.type === 'qualitychange'
+          );
+
+          const lastEvent = this.events[this.events.length - 1];
+          const completionRate =
+            lastEvent?.data?.duration > 0
+              ? (lastEvent.data.currentTime / lastEvent.data.duration) * 100
+              : 0;
+
+          const engagementScore = Math.min(
+            100,
+            (this.totalPlayTime / 1000 / 60) * 10 + (completionRate / 100) * 50
+          );
+
+          document.getElementById('play-time').textContent =
+            Math.round(this.totalPlayTime / 1000) + 's';
+          document.getElementById('seek-count').textContent = seekEvents.length;
+          document.getElementById('buffer-count').textContent =
+            bufferEvents.length;
+          document.getElementById('completion-rate').textContent =
+            Math.round(completionRate) + '%';
+          document.getElementById('engagement-score').textContent =
+            Math.round(engagementScore);
+          document.getElementById('quality-changes').textContent =
+            qualityEvents.length;
+        }
+      }
+
+      // Initialize analytics
+      analytics = new SimpleAnalytics();
+
+      // Configuration
+      const config = {
+        sessionId: 'demo-session-' + Date.now(),
+        autoTrack: true,
+        progressInterval: 5,
+        debug: debugMode,
+        onEvent: (event) => {
+          // Add to analytics
+          analytics.addEvent(event);
+
+          // Log to console
+          const logEntry =
+            `[${new Date().toLocaleTimeString()}] ${event.type.toUpperCase()} - ` +
+            `Time: ${event.data.currentTime?.toFixed(2)}s, ` +
+            `Duration: ${event.data.duration?.toFixed(2)}s, ` +
+            `Paused: ${event.data.paused}`;
+
+          addToLog(logEntry);
+
+          if (debugMode) {
+            console.log('[VideoTracker]', event);
+          }
+        },
+        metadata: {
+          userId: 'demo-user-123',
+          contentId: 'big-buck-bunny',
+          contentType: 'demo-video',
+          platform: 'web',
+        },
+      };
+
+      // Create the tracker
+      tracker = VideoTracker.createHTML5Tracker(video, config);
+
+      // Utility functions
+      function addToLog(message) {
+        const log = document.getElementById('events-log');
+        log.innerHTML += message + '\n';
+        log.scrollTop = log.scrollHeight;
+      }
+
+      function manualPlay() {
+        tracker.trackEvent('play', { manual: true });
+      }
+
+      function manualPause() {
+        tracker.trackEvent('pause', { manual: true });
+      }
+
+      function clearLog() {
+        document.getElementById('events-log').innerHTML = '';
+      }
+
+      function toggleDebug() {
+        debugMode = !debugMode;
+        tracker.updateConfig({ debug: debugMode });
+        addToLog(`Debug mode ${debugMode ? 'enabled' : 'disabled'}`);
+      }
+
+      function exportData() {
+        const data = {
+          sessionId: tracker.getSessionId(),
+          events: analytics.events,
+          totalPlayTime: analytics.totalPlayTime,
+          timestamp: new Date().toISOString(),
+        };
+
+        const blob = new Blob([JSON.stringify(data, null, 2)], {
+          type: 'application/json',
+        });
+
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `video-analytics-${tracker.getSessionId()}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        addToLog('Analytics data exported successfully');
+      }
+
+      // Welcome message
+      addToLog('Video Tracker SDK initialized successfully!');
+      addToLog('Session ID: ' + tracker.getSessionId());
+      addToLog('Start playing the video to see events...');
+    </script>
+  </body>
+</html>
