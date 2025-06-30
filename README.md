@@ -2,7 +2,7 @@
 
 Professional video event tracking SDK for monitoring video player metrics and user engagement across multiple video platforms.
 
-[![npm version](https://badge.fury.io/js/video-tracker-sdk.svg)](https://badge.fury.io/js/video-tracker-sdk)
+[![npm version](https://badge.fury.io/js/video-tracker-sdk.svg)](https://www.npmjs.com/package/video-tracker-sdk)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)
 

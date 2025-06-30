@@ -29,6 +29,11 @@ const config = {
   },
 };
 
+const videoElement = document.getElementById('video');
+const tracker = createHTML5Tracker(videoElement, config);
+
+tracker.start();
+
 console.log('Configuration:', config);
 console.log('\nIn a real implementation, you would:');
 console.log('1. Get a reference to your video element');
