@@ -76,7 +76,7 @@ export class JWPlayerAdapter implements VideoPlayerAdapter {
       }
 
       return null;
-    } catch (error) {
+    } catch {
       // JW Player might not have quality levels available
       return null;
     }

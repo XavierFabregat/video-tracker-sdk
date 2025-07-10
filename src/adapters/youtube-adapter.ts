@@ -57,11 +57,17 @@ export class YouTubeAdapter implements VideoPlayerAdapter {
   isFullscreen(): boolean {
     // YouTube Player API doesn't provide direct fullscreen state
     // This would need to be tracked via document fullscreen APIs
+    const doc = document as Document & {
+      webkitFullscreenElement?: Element | null;
+      mozFullScreenElement?: Element | null;
+      msFullscreenElement?: Element | null;
+    };
+
     return (
       document.fullscreenElement !== null ||
-      (document as any).webkitFullscreenElement !== null ||
-      (document as any).mozFullScreenElement !== null ||
-      (document as any).msFullscreenElement !== null
+      doc.webkitFullscreenElement !== null ||
+      doc.mozFullScreenElement !== null ||
+      doc.msFullscreenElement !== null
     );
   }
 
