@@ -3,6 +3,7 @@
 Professional video event tracking SDK for monitoring video player metrics and user engagement across multiple video platforms.
 
 [![npm version](https://badge.fury.io/js/video-tracker-sdk.svg)](https://www.npmjs.com/package/video-tracker-sdk)
+[![CircleCI](https://circleci.com/gh/XavierFabregat/video-tracker-sdk.svg?style=svg)](https://circleci.com/gh/XavierFabregat/video-tracker-sdk)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)
 
@@ -299,6 +300,17 @@ npm run lint
 # Start development build
 npm run dev
 ```
+
+## Continuous Integration
+
+This project uses CircleCI for continuous integration. On every push and pull request, the following checks run:
+
+- **Tests**: Full test suite with coverage reporting
+- **Linting**: ESLint code quality checks
+- **Build**: Verify the library builds successfully
+- **Package Testing**: Ensure the npm package can be installed and imported
+
+All checks must pass before merging to the main branch.
 
 ## Testing
 

@@ -1,0 +1,177 @@
+version: 2.1
+
+# Define reusable commands
+commands:
+  install-deps:
+    description: 'Install npm dependencies with caching'
+    steps:
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "package-lock.json" }}
+            - v1-dependencies-
+      - run:
+          name: Install dependencies
+          command: npm ci
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package-lock.json" }}
+
+# Define jobs
+jobs:
+  test:
+    docker:
+      - image: cimg/node:18.17
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - install-deps
+      - run:
+          name: Run tests
+          command: npm test -- --coverage --watchAll=false
+      - run:
+          name: Run linting
+          command: npm run lint
+      - store_test_results:
+          path: coverage
+      - store_artifacts:
+          path: coverage
+          destination: coverage
+
+  build:
+    docker:
+      - image: cimg/node:18.17
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - install-deps
+      - run:
+          name: Build project
+          command: npm run build
+      - store_artifacts:
+          path: dist
+          destination: dist
+      - persist_to_workspace:
+          root: ~/repo
+          paths:
+            - dist
+
+  test-package:
+    docker:
+      - image: cimg/node:18.17
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - install-deps
+      - attach_workspace:
+          at: ~/repo
+      - run:
+          name: Test package integrity
+          command: |
+            npm pack --dry-run
+            npm pack
+            tar -tf *.tgz
+      - run:
+          name: Test package installation
+          command: |
+            mkdir test-install
+            cd test-install
+            npm init -y
+            npm install ../video-tracker-sdk-*.tgz
+            node -e "console.log('Package installed successfully:', require('video-tracker-sdk'))"
+
+  # Optional: Auto-publish to npm on release
+  deploy:
+    docker:
+      - image: cimg/node:18.17
+    working_directory: ~/repo
+    steps:
+      - checkout
+      - install-deps
+      - attach_workspace:
+          at: ~/repo
+      - run:
+          name: Set npm auth token
+          command: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
+      - run:
+          name: Publish to npm
+          command: npm publish --access public
+
+# Define workflows
+workflows:
+  version: 2
+  test-and-build:
+    jobs:
+      - test:
+          filters:
+            branches:
+              ignore:
+                - gh-pages
+      - build:
+          requires:
+            - test
+          filters:
+            branches:
+              ignore:
+                - gh-pages
+      - test-package:
+          requires:
+            - build
+          filters:
+            branches:
+              ignore:
+                - gh-pages
+
+  # Separate workflow for main branch with additional checks
+  main-branch:
+    jobs:
+      - test:
+          filters:
+            branches:
+              only: main
+      - build:
+          requires:
+            - test
+          filters:
+            branches:
+              only: main
+      - test-package:
+          requires:
+            - build
+          filters:
+            branches:
+              only: main
+
+  # Deploy workflow (triggered by tags)
+  deploy:
+    jobs:
+      - test:
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
+      - build:
+          requires:
+            - test
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
+      - test-package:
+          requires:
+            - build
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
+      - deploy:
+          requires:
+            - test-package
+          filters:
+            tags:
+              only: /^v.*/
+            branches:
+              ignore: /.*/
