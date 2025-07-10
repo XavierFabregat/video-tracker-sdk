@@ -590,7 +590,7 @@
                 }
                 return null;
             }
-            catch (error) {
+            catch (_a) {
                 // JW Player might not have quality levels available
                 return null;
             }
@@ -766,10 +766,11 @@
         isFullscreen() {
             // YouTube Player API doesn't provide direct fullscreen state
             // This would need to be tracked via document fullscreen APIs
+            const doc = document;
             return (document.fullscreenElement !== null ||
-                document.webkitFullscreenElement !== null ||
-                document.mozFullScreenElement !== null ||
-                document.msFullscreenElement !== null);
+                doc.webkitFullscreenElement !== null ||
+                doc.mozFullScreenElement !== null ||
+                doc.msFullscreenElement !== null);
         }
         getVideoSrc() {
             return this.element.getVideoUrl() || '';
