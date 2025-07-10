@@ -1,6 +1,6 @@
 {
   "name": "video-tracker-sdk",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Professional video event tracking SDK for monitoring video player metrics and user engagement",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
