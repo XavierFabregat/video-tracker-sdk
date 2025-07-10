@@ -104,6 +104,9 @@ jobs:
           command: |
             echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
             echo "registry=https://registry.npmjs.org/" >> ~/.npmrc
+            echo "always-auth=true" >> ~/.npmrc
+            npm config set //registry.npmjs.org/:_authToken=${NPM_TOKEN}
+            npm config set registry https://registry.npmjs.org/
       - run:
           name: Verify npmrc
           command: cat ~/.npmrc
@@ -111,8 +114,16 @@ jobs:
           name: Test npm authentication
           command: npm whoami
       - run:
+          name: Test package creation
+          command: |
+            npm pack --dry-run
+            npm pack
+      - run:
           name: Publish to npm
-          command: npm publish --access public
+          command: npm publish --access public --non-interactive
+          environment:
+            NPM_CONFIG_REGISTRY: https://registry.npmjs.org/
+            NPM_CONFIG__AUTH_TOKEN: $NPM_TOKEN
 
 # Define workflows
 workflows:
