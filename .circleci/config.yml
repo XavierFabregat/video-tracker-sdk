@@ -88,6 +88,9 @@ jobs:
     steps:
       - checkout
       - install-deps
+      - with:
+          env:
+            NPM_TOKEN: ${NPM_TOKEN}
       - attach_workspace:
           at: ~/repo
       - run:
@@ -101,21 +104,9 @@ jobs:
             fi
       - run:
           name: Publish to npm
-          command: |
-            # Simple direct approach - bypass npm config entirely
-            export NPM_TOKEN="${NPM_TOKEN}"
-
-            # Create a temporary .npmrc for this command only
-            echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > /tmp/.npmrc
-            echo "registry=https://registry.npmjs.org/" >> /tmp/.npmrc
-            echo "email=xavi.fabregat.pous@gmail.com" >> /tmp/.npmrc
-            echo "always-auth=true" >> /tmp/.npmrc
-
-            # Use the temp .npmrc file
-            npm publish --access public --userconfig /tmp/.npmrc --registry https://registry.npmjs.org/
-
-            # Clean up
-            rm /tmp/.npmrc
+          run: npm publish --access public
+          env:
+            NPM_TOKEN: ${NPM_TOKEN}
 
 # Define workflows
 workflows:

@@ -46,6 +46,9 @@ jspm_packages/
 # Optional eslint cache
 .eslintcache
 
+# npm configuration with tokens
+.npmrc
+
 # Optional stylelint cache
 .stylelintcache
 
