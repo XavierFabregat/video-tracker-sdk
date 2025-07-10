@@ -11,12 +11,19 @@
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",
-    "test": "jest --setupFiles=./tests/setup.ts",
+    "test": "jest",
     "test:watch": "jest --watch",
     "lint": "eslint src --ext .ts,.js",
     "lint:fix": "eslint src --ext .ts,.js --fix",
     "prepare": "npm run build",
-    "demo": "node examples/basic-usage.js"
+    "demo": "node examples/basic-usage.js",
+    "version": "npm run build && npm run test && git add dist/",
+    "postversion": "git push && git push --tags",
+    "release:patch": "npm version patch",
+    "release:minor": "npm version minor",
+    "release:major": "npm version major",
+    "release:beta": "npm version prerelease --preid=beta",
+    "release:alpha": "npm version prerelease --preid=alpha"
   },
   "keywords": [
     "video",
