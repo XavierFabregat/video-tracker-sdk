@@ -66,10 +66,18 @@ jobs:
       - attach_workspace:
           at: ~/repo
       - run:
-          name: Test package integrity
+          name: Clean and test package
           command: |
+            # Clean old packages
+            rm -f *.tgz
+
+            # Dry run to check if package is valid
             npm pack --dry-run
+
+            # Create new package
             npm pack
+
+            # Test package integrity
             tar -tf *.tgz
       - run:
           name: Test package installation
