@@ -99,7 +99,7 @@ jobs:
             else
               echo "NPM_TOKEN is set (length: ${#NPM_TOKEN})"
             fi
-            - run:
+      - run:
           name: Publish to npm
           command: |
             # Create .npmrc dynamically with the actual token
@@ -107,15 +107,15 @@ jobs:
             echo "registry=https://registry.npmjs.org/" >> .npmrc
             echo "email=xavi.fabregat.pous@gmail.com" >> .npmrc
             echo "always-auth=true" >> .npmrc
-            
+
             # Verify configuration (show masked version for security)
             echo "Created .npmrc configuration"
             echo "Registry: $(grep '^registry=' .npmrc)"
             echo "Token: $(head -1 .npmrc | sed 's/npm_[a-zA-Z0-9_]*/npm_***HIDDEN***/')"
-            
+
             # Publish to npm
             npm publish --access public
-            
+
             # Clean up (optional since CI environment is ephemeral)
             rm .npmrc
 
