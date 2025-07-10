@@ -88,9 +88,6 @@ jobs:
     steps:
       - checkout
       - install-deps
-      - with:
-          env:
-            NPM_TOKEN: ${NPM_TOKEN}
       - attach_workspace:
           at: ~/repo
       - run:
@@ -104,9 +101,16 @@ jobs:
             fi
       - run:
           name: Publish to npm
-          run: npm publish --access public
-          env:
-            NPM_TOKEN: ${NPM_TOKEN}
+          command: |
+            # Substitute environment variables in .npmrc using sed
+            sed -i "s/\${NPM_TOKEN}/${NPM_TOKEN}/g" .npmrc
+
+            # Verify the token was substituted (show masked version)
+            echo "Checking .npmrc configuration..."
+            head -1 .npmrc | sed 's/npm_[a-zA-Z0-9]*/npm_***HIDDEN***/'
+
+            # Publish to npm
+            npm publish --access public
 
 # Define workflows
 workflows:
