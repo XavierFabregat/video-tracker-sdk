@@ -91,8 +91,25 @@ jobs:
       - attach_workspace:
           at: ~/repo
       - run:
+          name: Debug - Check NPM_TOKEN
+          command: |
+            if [ -z "$NPM_TOKEN" ]; then
+              echo "ERROR: NPM_TOKEN is not set"
+              exit 1
+            else
+              echo "NPM_TOKEN is set (length: ${#NPM_TOKEN})"
+            fi
+      - run:
           name: Set npm auth token
-          command: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
+          command: |
+            echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
+            echo "registry=https://registry.npmjs.org/" >> ~/.npmrc
+      - run:
+          name: Verify npmrc
+          command: cat ~/.npmrc
+      - run:
+          name: Test npm authentication
+          command: npm whoami
       - run:
           name: Publish to npm
           command: npm publish --access public
