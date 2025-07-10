@@ -58,12 +58,14 @@ export class VideoJSAdapter implements VideoPlayerAdapter {
     const qualityLevels = this.element.qualityLevels?.();
     if (qualityLevels && qualityLevels.length > 0) {
       const currentLevel = qualityLevels[0];
-      return {
-        width: currentLevel.width || 0,
-        height: currentLevel.height || 0,
-        bitrate: currentLevel.bitrate || 0,
-        level: currentLevel.label || 'auto',
-      };
+      if (currentLevel) {
+        return {
+          width: currentLevel.width || 0,
+          height: currentLevel.height || 0,
+          bitrate: currentLevel.bitrate || 0,
+          level: currentLevel.label || 'auto',
+        };
+      }
     }
 
     // Fallback to video element dimensions
