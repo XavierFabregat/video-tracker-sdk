@@ -100,30 +100,24 @@ jobs:
               echo "NPM_TOKEN is set (length: ${#NPM_TOKEN})"
             fi
       - run:
-          name: Set npm auth token
-          command: |
-            echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
-            echo "registry=https://registry.npmjs.org/" >> ~/.npmrc
-            echo "always-auth=true" >> ~/.npmrc
-            npm config set //registry.npmjs.org/:_authToken=${NPM_TOKEN}
-            npm config set registry https://registry.npmjs.org/
-      - run:
-          name: Verify npmrc
-          command: cat ~/.npmrc
-      - run:
-          name: Test npm authentication
-          command: npm whoami
-      - run:
-          name: Test package creation
-          command: |
-            npm pack --dry-run
-            npm pack
-      - run:
           name: Publish to npm
-          command: npm publish --access public --non-interactive
-          environment:
-            NPM_CONFIG_REGISTRY: https://registry.npmjs.org/
-            NPM_CONFIG__AUTH_TOKEN: $NPM_TOKEN
+          command: |
+            # Simple direct approach - bypass npm config entirely
+            export NPM_TOKEN="${NPM_TOKEN}"
+
+            # Create a temporary .npmrc for this command only
+            cat > /tmp/.npmrc << EOF
+            //registry.npmjs.org/:_authToken=${NPM_TOKEN}
+            registry=https://registry.npmjs.org/
+            email=xavi.fabregat.pous@gmail.com
+            always-auth=true
+            EOF
+
+            # Use the temp .npmrc file
+            npm publish --access public --userconfig /tmp/.npmrc --registry https://registry.npmjs.org/
+
+            # Clean up
+            rm /tmp/.npmrc
 
 # Define workflows
 workflows:
