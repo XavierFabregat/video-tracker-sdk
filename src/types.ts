@@ -107,7 +107,10 @@ export interface VideoTrackerConfig {
 export enum PlayerType {
   HTML5 = 'html5',
   VIDEO_JS = 'videojs',
+  PLYR = 'plyr',
   JW_PLAYER = 'jwplayer',
+  VIMEO = 'vimeo',
+  YOUTUBE = 'youtube',
   SHAKA_PLAYER = 'shaka',
   HLS_JS = 'hlsjs',
   CUSTOM = 'custom',
@@ -116,7 +119,13 @@ export enum PlayerType {
 // Interface for video player adapters
 export interface VideoPlayerAdapter {
   playerType: PlayerType;
-  element: HTMLVideoElement | VideoJSPlayer;
+  element:
+    | HTMLVideoElement
+    | VideoJSPlayer
+    | PlyrPlayer
+    | JWPlayer
+    | VimeoPlayer
+    | YouTubePlayer;
   getCurrentTime(): number;
   getDuration(): number;
   getVolume(): number;
@@ -131,6 +140,7 @@ export interface VideoPlayerAdapter {
   removeEventListener(event: string, handler: Function): void;
 }
 
+// VideoJS Player interface
 export interface VideoJSPlayer {
   currentTime(): number;
   duration(): number;
@@ -144,6 +154,83 @@ export interface VideoJSPlayer {
   qualityLevels?(): VideoQuality[];
   on(event: string, handler: Function): void;
   off(event: string, handler: Function): void;
+}
+
+// Plyr Player interface
+export interface PlyrPlayer {
+  currentTime: number;
+  duration: number;
+  volume: number;
+  muted: boolean;
+  paused: boolean;
+  fullscreen: {
+    active: boolean;
+    enter(): void;
+    exit(): void;
+  };
+  source: {
+    src: string;
+    type: string;
+  };
+  quality: number;
+  seeking: boolean;
+  buffering: boolean;
+  media: HTMLVideoElement;
+  on(event: string, handler: Function): void;
+  off(event: string, handler: Function): void;
+}
+
+// JW Player interface
+export interface JWPlayer {
+  getPosition(): number;
+  getDuration(): number;
+  getVolume(): number;
+  getMute(): boolean;
+  getState(): string;
+  getFullscreen(): boolean;
+  getPlaylistItem(): { file: string };
+  getQualityLevels(): Array<{ label: string; width: number; height: number }>;
+  getCurrentQuality(): number;
+  on(event: string, handler: Function): void;
+  off(event: string, handler: Function): void;
+}
+
+// Vimeo Player interface
+export interface VimeoPlayer {
+  getCurrentTime(): Promise<number>;
+  getDuration(): Promise<number>;
+  getVolume(): Promise<number>;
+  getMuted(): Promise<boolean>;
+  getPaused(): Promise<boolean>;
+  getFullscreen(): Promise<boolean>;
+  getVideoUrl(): Promise<string>;
+  getVideoQuality(): Promise<string>;
+  on(event: string, handler: Function): void;
+  off(event: string, handler: Function): void;
+}
+
+// YouTube Player interface
+export interface YouTubePlayer {
+  getCurrentTime(): number;
+  getDuration(): number;
+  getVolume(): number;
+  isMuted(): boolean;
+  getPlayerState(): number;
+  getVideoUrl(): string;
+  getPlaybackQuality(): string;
+  getAvailableQualityLevels(): string[];
+  addEventListener(event: string, handler: Function): void;
+  removeEventListener(event: string, handler: Function): void;
+}
+
+// YouTube Player States
+export enum YouTubePlayerState {
+  UNSTARTED = -1,
+  ENDED = 0,
+  PLAYING = 1,
+  PAUSED = 2,
+  BUFFERING = 3,
+  CUED = 5,
 }
 
 export interface MediaErrorEvent extends Event {

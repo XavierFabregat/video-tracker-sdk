@@ -1,29 +1,23 @@
+import { VideoTracker } from './video-tracker';
 import { HTML5VideoAdapter } from './adapters/html5-adapter';
 import { VideoTrackerConfig } from './types';
-import { VideoTracker } from './video-tracker';
 
-// Main exports
+// Main VideoTracker class
 export { VideoTracker } from './video-tracker';
 
-// Types
-export {
-  VideoEventType,
-  VideoEvent,
-  VideoEventData,
-  BaseEventData,
-  SeekEventData,
-  QualityChangeEventData,
-  BufferEventData,
-  ErrorEventData,
-  ProgressEventData,
-  VideoTrackerConfig,
-  VideoPlayerAdapter,
-  VideoQuality,
-  PlayerType,
-} from './types';
-
-// Adapters
+// Video player adapters
 export { HTML5VideoAdapter } from './adapters/html5-adapter';
+export { VideoJSAdapter } from './adapters/videojs-adapter';
+export { PlyrAdapter } from './adapters/plyr-adapter';
+export { JWPlayerAdapter } from './adapters/jwplayer-adapter';
+export { VimeoAdapter } from './adapters/vimeo-adapter';
+export { YouTubeAdapter } from './adapters/youtube-adapter';
+
+// Analytics utilities
+export { EventAnalytics } from './utils/event-analytics';
+
+// Types and interfaces
+export * from './types';
 
 // Helper function to create a tracker with HTML5 video
 export function createHTML5Tracker(

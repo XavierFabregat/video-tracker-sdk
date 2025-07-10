@@ -15,6 +15,9 @@
     "test:watch": "jest --watch",
     "lint": "eslint src --ext .ts,.js",
     "lint:fix": "eslint src --ext .ts,.js --fix",
+    "docs": "typedoc",
+    "docs:serve": "typedoc && npx http-server docs -p 8080",
+    "docs:clean": "rm -rf docs",
     "prepare": "npm run build",
     "demo": "node examples/basic-usage.js",
     "version": "npm run build && npm run test && git add dist/",
@@ -52,6 +55,7 @@
     "rollup": "^4.6.1",
     "ts-jest": "^29.1.1",
     "tslib": "^2.8.1",
+    "typedoc": "^0.28.7",
     "typescript": "^5.8.3"
   },
   "repository": {
