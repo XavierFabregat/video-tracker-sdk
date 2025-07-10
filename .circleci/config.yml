@@ -106,12 +106,10 @@ jobs:
             export NPM_TOKEN="${NPM_TOKEN}"
 
             # Create a temporary .npmrc for this command only
-            cat > /tmp/.npmrc << EOF
-            //registry.npmjs.org/:_authToken=${NPM_TOKEN}
-            registry=https://registry.npmjs.org/
-            email=xavi.fabregat.pous@gmail.com
-            always-auth=true
-            EOF
+            echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > /tmp/.npmrc
+            echo "registry=https://registry.npmjs.org/" >> /tmp/.npmrc
+            echo "email=xavi.fabregat.pous@gmail.com" >> /tmp/.npmrc
+            echo "always-auth=true" >> /tmp/.npmrc
 
             # Use the temp .npmrc file
             npm publish --access public --userconfig /tmp/.npmrc --registry https://registry.npmjs.org/
