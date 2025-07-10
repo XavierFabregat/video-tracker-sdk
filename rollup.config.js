@@ -1,9 +1,9 @@
-import resolve from '@rollup/plugin-node-resolve';
-import typescript from '@rollup/plugin-typescript';
+const resolve = require('@rollup/plugin-node-resolve');
+const typescript = require('@rollup/plugin-typescript');
 
 const external = [];
 
-export default [
+module.exports = [
   // CommonJS build
   {
     input: 'src/index.ts',
